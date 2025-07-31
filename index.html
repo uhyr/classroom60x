@@ -1,0 +1,78 @@
+<html>
+<head>
+  <base href="https://cdn.jsdelivr.net/gh/genizy/polytrack@main/">
+  <script>
+    window.jkdfgnjkndfg = document.querySelector('base').href;
+    fetch("simulation_worker.bundle.js").then(res => res.text()).then(text => {
+      const blob = new Blob([text.replaceAll("replacethisplease", window.jkdfgnjkndfg)], { type: 'application/javascript' });
+      window.simulationworker = URL.createObjectURL(blob);
+    });
+
+    const ogworker = window.Worker;
+    window.Worker = function (scripturl, options) {
+      if (typeof scripturl === 'string' && scripturl.toLowerCase() === "simulation_worker.bundle.js") {
+        scripturl = window.simulationworker;
+      }
+      return new ogworker(scripturl, options);
+    };
+    window.Worker.prototype = ogworker.prototype;
+
+    const ogfetch = window.fetch;
+    window.fetch = async function (input, init) {
+      if (typeof input === "string") {
+        input = input.replace("vps.kodub.com:43273", "vpskodub.tmena1565.workers.dev");
+      } else if (input instanceof Request) {
+        const newUrl = input.url.replace("vps.kodub.com:43273", "vpskodub.tmena1565.workers.dev");
+        input = new Request(newUrl, input);
+      }
+      return ogfetch(input, init);
+    };
+
+    const ogxml = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+      if (typeof url === "string") {
+        url = url.replace("vps.kodub.com:43273", "vpskodub.tmena1565.workers.dev");
+      }
+      return ogxml.call(this, method, url, ...rest);
+    };
+  </script>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+
+<body style="margin:0; padding:0; background:#000; overflow:hidden;">
+
+  <!-- Play Button -->
+  <div id="play-button-container" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#000; z-index:9999; display:flex; justify-content:center; align-items:center;">
+    <button id="play-button" style="padding:16px 32px; font-size:24px; background-color:#1a73e8; color:#fff; border:none; border-radius:10px; cursor:pointer;">
+      ▶️ Play Game
+    </button>
+  </div>
+
+  <!-- Game Canvas and UI -->
+  <canvas id="screen" style="display:none;"></canvas>
+  <div id="ui" style="display:none;"></div>
+  <div id="transition-layer" style="display:none;"></div>
+
+  <!-- Script loader -->
+  <script>
+    document.getElementById("play-button").onclick = function () {
+      // Hide the button
+      document.getElementById("play-button-container").style.display = "none";
+
+      // Show game elements
+      document.getElementById("screen").style.display = "block";
+      document.getElementById("ui").style.display = "block";
+      document.getElementById("transition-layer").style.display = "block";
+
+      // Dynamically load the game script
+      const script = document.createElement('script');
+      script.src = 'main.bundle.js';
+      script.defer = true;
+      document.body.appendChild(script);
+    };
+  </script>
+
+</body>
+</html>
